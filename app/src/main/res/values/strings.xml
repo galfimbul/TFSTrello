@@ -1,0 +1,104 @@
+<resources>
+    <string name="app_name">MyTrello</string>
+
+    <string name="et_input_board_name_hint">Название доски</string>
+    <string name="btn_cancel_text">Отмена</string>
+    <string name="btn_create_text">Создать</string>
+    <string name="tv_list_of_boards_fragment_boardSection">Персональные доски</string>
+    <string name="btn_openImageViews">Просмотр ImageView</string>
+    <string name="column_header_test_string">Test</string>
+    <string name="tv_empty">Нет данных</string>
+    <string name="text_on_swipe">Удаление</string>
+    <string name="snackbar_reverse_action_text">Отмена</string>
+    <string name="access_token_key">access_token</string>
+    <string name="activity_auth_get_authorization">Провести авторизацию</string>
+    <string name="list_of_boards_download_success">Доски успешно загружены</string>
+    <string name="list_of_boards_download_failed">FAIL TO MAKE REQUEST</string>
+    <string name="input_baord_name_fragment_personal_boards_category">Personal Boards</string>
+    <string name="list_of_boards_board_delited_from_server">Доска удалена с свервера</string>
+    <string name="single_board_view_model_card_add_success">Карточка добавлена на сервер</string>
+    <string name="single_boadr_view_model_add_card_on_server_fail">Не удалось добавить карточку на сервер. Проверьте
+        соединение с интернетом
+    </string>
+    <string name="single_board_view_model_remove_column_success">Колонка добавлена в архив</string>
+    <string name="single_board_view_model_failed_to_archive_column">Невозможно отправить колонку в архив</string>
+    <string name="single_board_view_model_change_column_position_success">Колонка успешно перемещена</string>
+    <string name="single_board_view_model_change_item_position_failed">Не удалось переместить на сервере. При
+        синхронизации порядок может измениться
+    </string>
+    <string name="btn_singleBoard_footer_text">Добавить карточку</string>
+    <string name="et_singleBoard_footer_hint">Введите имя карточки</string>
+    <string name="et_singleBoard_header">Введите имя колонки</string>
+    <string name="singe_board_view_model_change_column_name_failed">Не удалось изменить имя на сервере</string>
+    <string name="single_board_id_not_unique">ID не уникален</string>
+    <string name="single_board_view_model_add_column_to_server_failed">Не удалось добавить колонку на сервер. Проверьте
+        соединение с интернетом и попробуйте снова.
+    </string>
+    <string name="single_board_view_model_change_column_position_failed">Не удалось переместить колонку на сервере.
+        Проверьте соединение с интернетом и повторите попытку.
+    </string>
+    <string name="single_board_view_model_get_board_details_failed">Не удалось получить информацию о выбранной доске.
+        Проверьте соединение с интернетом и повторите попытку
+    </string>
+    <string name="auth_fragment_get_request_token_failed">Отсутствует соединение с интернетом. Проверьте соединение и
+        повторите попытку
+    </string>
+    <string name="card_info_fragment_btn_info_changes">История изменений</string>
+    <string name="card_changes_fragment_title">История изменений карточки: %1s</string>
+    <string name="card_changes_adapter_move_from_list_to_list">%1s переместил карточку из списка %2s в список %3s
+    </string>
+    <string name="card_changes_adapter_action_create_card">%1s создал карточку</string>
+    <string name="card_changes_adapter_action_change_desc">%1s изменил описание карточки</string>
+    <string name="card_changes_adapter_action_add_attach">%1s добавил вложение к этой карточке</string>
+    <string name="menu_search_title">Поиск</string>
+    <string name="search_fragment_hint">Введите имя карточки</string>
+    <string name="avatar_url">https://trello-avatars.s3.amazonaws.com/%1s/50.png</string>
+    <string name="single_board_empty_card_name_error">Введите название карточки</string>
+    <string name="card_info_fragment_subtitle">%1s в списке %2s</string>
+    <string name="card_info_fragment_attachment_title">Вложения</string>
+    <string name="card_changes_adapter_joined">%1s присоединился(-лась) к этой карточке</string>
+    <string name="card_changes_adapter_add_member">%1s добавил %2s к этой карточке</string>
+    <string name="mytrello_title">Добро пожаловать в MyTrello!</string>
+    <string name="auth_fragment_subtitle">Нажмите кнопку ниже, чтобы приступить к работе с приложением!</string>
+    <string name="add_members_dialog_fragment_title">Добавить или удалить участника</string>
+    <string name="add_members_dialog_fragment_message">Выберите участника, которого хотите добавить или удалить с
+        доски
+    </string>
+    <string name="add_members_dialog_fragment_neutral_btn">Отмена</string>
+    <string name="add_members_dialog_fragment_positive_btn">Готово</string>
+    <string name="add_members_dialog_fragment_positive_btn_toast_text">Выбраны пользователи: %1s</string>
+    <string name="auth_fragment_web_view_loading_url"><![CDATA[%1s&scope=read,write&name=MyTrelloApp]]></string>
+    <string name="card_changes_fragment_rv_list_empty_toast_text">List is empty</string>
+    <string name="input_board_name_fragment_title">Новая доска</string>
+    <string name="input_board_name_fragment_positive_btn">Создать</string>
+    <string name="input_board_name_fragment_neutral_btn">Отмена</string>
+    <string name="list_of_boards_fragment_snackbar_text">Вы точно хотите удалить %1s?</string>
+    <string name="single_board_fragment_default_column_name">New Column %1s</string>
+    <string name="single_board_fragment_search_query_hint">Введите название карточки</string>
+    <string name="add_members_adapter_avatar_source">https://trello-avatars.s3.amazonaws.com/%1s/50.png</string>
+    <string name="card_changes_adapter_action_add_file_attach">%1s добавил %2s к этой карточке</string>
+    <string name="main_activity_auth_fragment_tag">authFragment</string>
+    <string name="main_activity_list_of_boards_fragment_tag">listOfBoards</string>
+    <string name="show_image_fragment_url_error">Ошибка при загрузке изображения, проверьте соединение с интернетом и
+        повторите попытку
+    </string>
+    <string name="show_attachment_fragment_chooser_title">Выберите приложение для открытия файла</string>
+    <string name="show_attachment_fragment_permission_error">Permission Denied. This app will not work with right
+        permission.
+    </string>
+    <string name="show_attachment_fragment_download_complete_toast">File Downloaded</string>
+    <string name="show_attachment_fragment_write_permission_failed">Unable to download file. Required Privileges are not
+        available.
+    </string>
+    <string name="show_attachment_fragment_permission_dialog_message">Required permission to write external storage to
+        save downloaded file.
+    </string>
+    <string name="show_attachment_fragment_permission_dialog_title">Please Grant Write Permission</string>
+    <string name="show_attachment_fragment_permission_dialog_positive_btn">OK</string>
+    <string name="show_attachment_fragment_permission_dialog_negative_btn">Cancel</string>
+    <string-array name="category">
+        <item>Personal boards</item>
+        <item>Work boards</item>
+        <item>Other boards</item>
+    </string-array>
+</resources>

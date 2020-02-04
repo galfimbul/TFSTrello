@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp">
+    <androidx.cardview.widget.CardView
+            android:id="@+id/cv_card_changes_action_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:duplicateParentState="true"
+            android:foreground="@drawable/card_view_selector"
+            card_view:cardBackgroundColor="#ffffff"
+            card_view:cardCornerRadius="4dp"
+            card_view:cardElevation="2dp"
+            card_view:cardPreventCornerOverlap="true"
+            card_view:cardUseCompatPadding="true">
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+            <ImageView
+                    android:id="@+id/iv_file_attachment"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_attachment_exist"/>
+            <TextView
+                    android:id="@+id/tv_attachment_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Новая Доска"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginStart="@dimen/spacing_normal_16"
+                    android:padding="@dimen/spacing_small_8"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_toEndOf="@+id/iv_file_attachment"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

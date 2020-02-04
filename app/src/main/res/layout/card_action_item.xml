@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_tiny">
+    <androidx.cardview.widget.CardView
+            android:id="@+id/cv_card_changes_action_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:duplicateParentState="true"
+            android:foreground="@drawable/card_view_selector"
+            card_view:cardBackgroundColor="#ffffff"
+            card_view:cardCornerRadius="@dimen/card_view_corner_radius_4"
+            card_view:cardElevation="@dimen/card_view_elevation_2"
+            card_view:cardPreventCornerOverlap="true"
+            card_view:cardUseCompatPadding="true">
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+            <ru.shvetsov.myTrello.custom.AvatarImageView
+                    android:id="@+id/iv_creator_avatar"
+                    android:layout_width="@dimen/avatar_size"
+                    android:layout_height="@dimen/avatar_size"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/spacing_normal_16"/>
+            <TextView
+                    android:id="@+id/tv_action_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Новая Доска"
+                    android:textSize="@dimen/text_size_18"
+                    android:textColor="@android:color/black"
+                    android:layout_marginStart="@dimen/spacing_normal_16"
+                    android:padding="@dimen/spacing_small_8"
+                    android:layout_gravity="center"
+                    android:layout_toEndOf="@+id/iv_creator_avatar"/>
+            <TextView
+                    android:id="@+id/tv_action_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal_16"
+                    tools:text="10 дней назад"
+                    android:layout_marginStart="@dimen/spacing_normal_16"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="2dp"
+                    android:paddingStart="@dimen/spacing_normal_16"
+                    android:paddingEnd="@dimen/spacing_normal_16"
+                    android:layout_marginBottom="@dimen/spacing_normal_16"
+                    android:layout_below="@+id/tv_action_info"
+                    android:layout_toEndOf="@+id/iv_creator_avatar"/>
+            <ImageView
+                    android:id="@+id/iv_card_action_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    tools:src="@drawable/flower"
+                    android:layout_marginStart="@dimen/spacing_small_8"
+                    android:layout_marginEnd="@dimen/spacing_small_8"
+                    android:layout_marginBottom="@dimen/spacing_small_8"
+                    android:visibility="gone"
+                    android:layout_below="@+id/tv_action_date"
+                    android:layout_toEndOf="@+id/iv_creator_avatar"
+                    android:layout_centerHorizontal="true"
+                    tools:ignore="ContentDescription"
+                    tools:visibility="visible"/>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
