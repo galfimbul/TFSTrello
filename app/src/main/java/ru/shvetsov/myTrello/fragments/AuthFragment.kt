@@ -22,7 +22,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.auth_fragment.*
 import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.dataClasses.TrelloConstants
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.interfaces.FragmentListener
 import ru.shvetsov.myTrello.network.ServiceClient
 import javax.inject.Inject
@@ -48,7 +48,7 @@ class AuthFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val component = (requireActivity().application as AppTest).appComponent.getSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getSubcomponent()
         component.inject(this)
     }
 

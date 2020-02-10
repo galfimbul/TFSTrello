@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.card_changes_fragment.*
 import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.adapters.CardChangesAdapter
 import ru.shvetsov.myTrello.dataClasses.card.Card
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.viewmodels.CardChangesViewModel
 import ru.shvetsov.myTrello.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -60,7 +60,7 @@ class CardChangesFragment : Fragment() {
     }
 
     private fun makeInject() {
-        val component = (requireActivity().application as AppTest).appComponent.getCardChangesSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getCardChangesSubcomponent()
         component.inject(this)
     }
 

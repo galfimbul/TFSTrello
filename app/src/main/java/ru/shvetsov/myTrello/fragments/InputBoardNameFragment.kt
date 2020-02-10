@@ -15,7 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.dataClasses.Organization
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.viewmodels.InputBoardNameViewModel
 import ru.shvetsov.myTrello.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class InputBoardNameFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val component = (requireActivity().application as AppTest).appComponent.getInputBoardNameSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getInputBoardNameSubcomponent()
         component.inject(this)
         viewModel = activity?.run {
             ViewModelProviders

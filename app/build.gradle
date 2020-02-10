@@ -8,7 +8,7 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "ru.shvetsov.homework_2"
+        applicationId "ru.shvetsov.myTrello"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1

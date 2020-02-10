@@ -28,7 +28,7 @@ import ru.shvetsov.myTrello.dataClasses.Board
 import ru.shvetsov.myTrello.dataClasses.BoardInfo
 import ru.shvetsov.myTrello.dataClasses.Column
 import ru.shvetsov.myTrello.dataClasses.card.Card
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.extensions.hideKeyboard
 import ru.shvetsov.myTrello.extensions.showKeyboard
 import ru.shvetsov.myTrello.interfaces.FragmentListener
@@ -75,7 +75,7 @@ class SingleBoardFragment : Fragment() {
     }
 
     private fun makeInject() {
-        val component = (requireActivity().application as AppTest).appComponent.getSingleBoardSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getSingleBoardSubcomponent()
         component.inject(this)
     }
 
@@ -270,7 +270,7 @@ class SingleBoardFragment : Fragment() {
         parent.removeView(mBoardView)
         mColumns = 0
         sCreatedItems = 0
-        singleBoardViewModel.dispBag.clear()
+        singleBoardViewModel.disposableBag.clear()
     }
 
     companion object {

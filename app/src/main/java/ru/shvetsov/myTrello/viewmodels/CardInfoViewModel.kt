@@ -1,48 +1,40 @@
 package ru.shvetsov.myTrello.viewmodels
 
-import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.CARD_INFO_VIEW_MODEL_BOARD_FIELDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.CARD_INFO_VIEW_MODEL_LIST_FIELDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.CARD_INFO_VIEW_MODEL_MEMBER_FIELDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.CONSUMER_KEY
+import io.reactivex.disposables.CompositeDisposable
+import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.dataClasses.card.Card
-import ru.shvetsov.myTrello.network.CardInfoApi
+import ru.shvetsov.myTrello.repositories.CardInfoFragmentRepository
 import javax.inject.Inject
 
 /**
  * Created by Alexander Shvetsov on 29.11.2019
  */
-class CardInfoViewModel @Inject constructor(val retrofit: CardInfoApi, spref: SharedPreferences) : ViewModel() {
-    val card = MutableLiveData<Card>()
-    val token = spref.getString(TrelloConstants.ACCESS_TOKEN_KEY, "")!!
+class CardInfoViewModel @Inject constructor(var repository: CardInfoFragmentRepository) : ViewModel() {
+    private val cardInfoFragmentDisposables = CompositeDisposable()
+    private val card = MutableLiveData<Card>()
+    private val error = MutableLiveData<Int>()
     fun getCardInfo(): LiveData<Card> = card
+    fun getError(): LiveData<Int> = error
+
     fun getCardFromServer(id: String) {
         if (card.value == null) {
-            val result = retrofit.getCardInfo(
-                id,
-                TrelloConstants.CARD_INFO_VIEW_MODEL_FIELDS,
-                true,
-                CARD_INFO_VIEW_MODEL_MEMBER_FIELDS,
-                true,
-                true,
-                CARD_INFO_VIEW_MODEL_BOARD_FIELDS,
-                true,
-                CARD_INFO_VIEW_MODEL_LIST_FIELDS,
-                CONSUMER_KEY,
-                token
-            )
+            val cardFromServerResult = repository.getCard(id)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     card.value = it
                 }, {
-
+                    error.value = R.string.card_info_view_model_get_card_from_server_error
                 })
+            cardInfoFragmentDisposables.add(cardFromServerResult)
         }
+    }
 
+    override fun onCleared() {
+        super.onCleared()
+        cardInfoFragmentDisposables.clear()
     }
 }

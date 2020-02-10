@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -23,7 +24,7 @@ import ru.shvetsov.myTrello.custom.AvatarImageView
 import ru.shvetsov.myTrello.dataClasses.BoardInfo
 import ru.shvetsov.myTrello.dataClasses.User
 import ru.shvetsov.myTrello.dataClasses.card.Card
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.extensions.dpToPx
 import ru.shvetsov.myTrello.extensions.spToPx
 import ru.shvetsov.myTrello.interfaces.FragmentListener
@@ -77,12 +78,14 @@ class CardInfoFragment : Fragment() {
         btn_card_info_changes.setOnClickListener {
             listener?.openCardChanges(card)
         }
+    }
 
-
+    private fun showError(id: Int) {
+        Toast.makeText(requireActivity(), getString(id), Toast.LENGTH_SHORT).show()
     }
 
     private fun makeInject() {
-        val component = (requireActivity().application as AppTest).appComponent.getCardInfoSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getCardInfoSubcomponent()
         component.inject(this)
     }
 
@@ -117,6 +120,9 @@ class CardInfoFragment : Fragment() {
 
                 initMembers()
             }
+        })
+        viewModel.getError().observe(this, Observer { errorMessageId ->
+            showError(errorMessageId)
         })
 
     }
@@ -204,7 +210,6 @@ class CardInfoFragment : Fragment() {
                         .addToBackStack(null)
                         .commit()
                 }
-
             } else {
                 ll_card_info_attachment_files.addView(inflateTextView(attachment.name, attachment.url))
             }
@@ -217,9 +222,6 @@ class CardInfoFragment : Fragment() {
         view.tv_attachment_info.text = text
 
         view.setOnClickListener {
-            /*val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(url)
-            startActivity(intent)*/
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(this.id, ShowAttachmentFragment.newInstance(url, true))

@@ -5,7 +5,7 @@ import android.app.Application
 /**
  * Created by Alexander Shvetsov on 26.01.2020
  */
-class AppTest : Application() {
+class MyApp : Application() {
     lateinit var appComponent: AppComponentDagger
     override fun onCreate() {
         super.onCreate()

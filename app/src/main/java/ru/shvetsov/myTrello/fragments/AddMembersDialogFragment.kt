@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.member_selection_item.view.*
 import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.adapters.AddMembersAdapter
 import ru.shvetsov.myTrello.dataClasses.User
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.viewmodels.AddCardMembersViewModel
 import ru.shvetsov.myTrello.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -118,7 +118,7 @@ class AddMembersDialogFragment : DialogFragment() {
     }
 
     private fun makeInject() {
-        val component = (requireActivity().application as AppTest).appComponent.getAddMemberSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getAddMemberSubcomponent()
         component.inject(this)
     }
 

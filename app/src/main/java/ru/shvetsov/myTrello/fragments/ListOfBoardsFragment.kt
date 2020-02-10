@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.list_of_boards_fragment.view.*
 import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.adapters.ListOfBoardsAdapter
 import ru.shvetsov.myTrello.dataClasses.Board
-import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.di.dagger.MyApp
 import ru.shvetsov.myTrello.interfaces.FragmentListener
 import ru.shvetsov.myTrello.viewmodels.InputBoardNameViewModel
 import ru.shvetsov.myTrello.viewmodels.ListOfBoardsViewModel
@@ -54,7 +54,7 @@ class ListOfBoardsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val component = (requireActivity().application as AppTest).appComponent.getListOfBoardsSubcomponent()
+        val component = (requireActivity().application as MyApp).appComponent.getListOfBoardsSubcomponent()
         component.inject(this)
 
         activity?.run {

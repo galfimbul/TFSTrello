@@ -96,6 +96,9 @@
     <string name="show_attachment_fragment_permission_dialog_title">Please Grant Write Permission</string>
     <string name="show_attachment_fragment_permission_dialog_positive_btn">OK</string>
     <string name="show_attachment_fragment_permission_dialog_negative_btn">Cancel</string>
+    <string name="card_info_view_model_get_card_from_server_error">Произошла ошибка при загрузке. Проверьте соединение с
+        интернетом и повторите попытку
+    </string>
     <string-array name="category">
         <item>Personal boards</item>
         <item>Work boards</item>
