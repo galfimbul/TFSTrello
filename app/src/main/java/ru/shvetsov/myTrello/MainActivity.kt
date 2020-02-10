@@ -64,10 +64,6 @@ class MainActivity : AppCompatActivity(), FragmentListener {
         setCurrentFragment(cardChangesFragment)
     }
 
-    override fun openSearchFragment(id: String) {
-        val searchFragment = SearchFragment.newInstance(id)
-        setCurrentFragment(searchFragment)
-    }
 
     override fun openAuthFragment() {
         val authFragment = AuthFragment.newInstance()

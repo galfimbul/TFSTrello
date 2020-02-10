@@ -13,6 +13,5 @@ interface FragmentListener {
     fun getToken() // уведомляем Activity что токен успешно получен
     fun openCardInfo(cardId: String, boardInfo: BoardInfo)
     fun openCardChanges(card: Card)
-    fun openSearchFragment(id: String)
     fun openAuthFragment()
 }

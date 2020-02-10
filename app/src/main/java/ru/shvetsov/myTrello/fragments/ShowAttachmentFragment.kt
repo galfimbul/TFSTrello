@@ -23,10 +23,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import io.reactivex.Observable
-import io.reactivex.ObservableOnSubscribe
-import kotlinx.android.synthetic.main.show_photo_fragment.*
+import kotlinx.android.synthetic.main.show_attachment_fragment.*
 import ru.shvetsov.myTrello.BuildConfig
 import ru.shvetsov.myTrello.R
 import java.io.File
@@ -46,21 +45,14 @@ class ShowAttachmentFragment : Fragment() {
         super.onCreate(savedInstanceState)
         url = arguments?.getString("url").orEmpty()
         isFile = arguments?.getBoolean("isFile")!!
-        Log.d("M_ShowAttachment", "OPEN SHOWATTACHFRAGMENT!!!!")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.show_photo_fragment, container, false)
+        return inflater.inflate(R.layout.show_attachment_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val test = Observable.create(ObservableOnSubscribe<Int> {
-            it.onNext(100)
-        }).subscribe {
-            Log.d("M_ShowAttachmentFrag", it.toString())
-
-        }
         wv_show_photo.webViewClient = WebViewClient()
         wv_show_photo.webChromeClient = WebChromeClient()
         wv_show_photo.settings.loadWithOverviewMode = true
@@ -73,10 +65,13 @@ class ShowAttachmentFragment : Fragment() {
         }
         when {
             url.isNotEmpty() && !isFile -> {
+                wv_show_photo.visibility = View.VISIBLE
+                if (show_attachment_download_label.isVisible)
+                    show_attachment_download_label.visibility = View.GONE
+
                 wv_show_photo.loadUrl(url)
             }
             url.isNotEmpty() && isFile -> {
-                //wv_show_photo.loadUrl("https://docs.google.com/viewerng/viewer?embedded=true&url=$url")
                 downloadAndOpenFile(url)
             }
             else -> {
@@ -101,8 +96,14 @@ class ShowAttachmentFragment : Fragment() {
     }
 
     private fun downloadAndOpenFile(url: String) {
+        if (wv_show_photo.isVisible) {
+            wv_show_photo.visibility = View.GONE
+        }
         checkWriteAccess()
         createDownloadListener()
+        show_attachment_download_label.visibility = View.VISIBLE
+        show_attachment_download_label.text =
+            getString(R.string.show_attachment_fragment_file_download_label, downloadFileName)
         wv_show_photo.setDownloadListener(downloadListener)
         wv_show_photo.loadUrl(url)
         onDownloadComplete()
@@ -174,7 +175,7 @@ class ShowAttachmentFragment : Fragment() {
         val onComplete = object : BroadcastReceiver() {
             override fun onReceive(ctxt: Context, intent: Intent) {
                 Toast.makeText(
-                    context,
+                    ctxt,
                     getString(R.string.show_attachment_fragment_download_complete_toast),
                     Toast.LENGTH_LONG
                 ).show()
