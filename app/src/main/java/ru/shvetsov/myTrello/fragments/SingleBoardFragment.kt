@@ -270,13 +270,12 @@ class SingleBoardFragment : Fragment() {
         parent.removeView(mBoardView)
         mColumns = 0
         sCreatedItems = 0
-        singleBoardViewModel.dispBag.clear()
     }
 
     companion object {
         fun newInstance(board: Board): SingleBoardFragment {
             val singleBoard = SingleBoardFragment()
-            val args = Bundle() // bundle для параметров dialogFragment
+            val args = Bundle()
             args.putSerializable("board", board)
             singleBoard.arguments = args
             return singleBoard

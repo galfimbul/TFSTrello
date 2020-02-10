@@ -2,7 +2,6 @@ package ru.shvetsov.myTrello.repositories
 
 import io.reactivex.Single
 import ru.shvetsov.myTrello.dataClasses.BoardFromTrelloAPI
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants
 import ru.shvetsov.myTrello.dataClasses.TrelloConstants.CONSUMER_KEY
 import ru.shvetsov.myTrello.network.ListOfBoardsApi
 import javax.inject.Inject
@@ -34,7 +33,7 @@ class ListOfBoardsFragmentRepository @Inject constructor(
             true,
             false,
             organizationName,
-            TrelloConstants.CONSUMER_KEY,
+            CONSUMER_KEY,
             token
         )
 
@@ -43,7 +42,7 @@ class ListOfBoardsFragmentRepository @Inject constructor(
     fun deleteBoard(id: String): Single<String> {
         return retrofit.deleteBoard(
             id,
-            TrelloConstants.CONSUMER_KEY,
+            CONSUMER_KEY,
             token
         )
     }

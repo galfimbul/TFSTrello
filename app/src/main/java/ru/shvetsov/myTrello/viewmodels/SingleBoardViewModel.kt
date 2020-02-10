@@ -10,16 +10,8 @@ import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.dataClasses.Board
 import ru.shvetsov.myTrello.dataClasses.BoardInfo
 import ru.shvetsov.myTrello.dataClasses.Column
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_CARDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_CARD_FIELDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_CARD_MEMBER_FIELDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_LISTS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_LISTS_FIELDS
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_MEMBERS_INVITED
-import ru.shvetsov.myTrello.dataClasses.TrelloConstants.SINGLE_BOARD_VIEW_MODEL_MEMBER_FIELDS
 import ru.shvetsov.myTrello.dataClasses.card.Card
-import ru.shvetsov.myTrello.network.SingleBoardApi
+import ru.shvetsov.myTrello.repositories.SingleBoardFragmentRepository
 import ru.shvetsov.myTrello.utils.notifyObserver
 import java.util.*
 import javax.inject.Inject
@@ -28,7 +20,7 @@ import kotlin.collections.ArrayList
 /**
  * Created by Alexander Shvetsov on 03.11.2019
  */
-class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : ViewModel() {
+class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragmentRepository) : ViewModel() {
     lateinit var token: String
     private val cardFromServer = MutableLiveData<Card>()
     private val columnFromServer = MutableLiveData<Column>()
@@ -36,7 +28,7 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
     private val message = MutableLiveData<Int>()
     private val listOfColumns = MutableLiveData<ArrayList<Column>>()
     private val mapOfColumns = MutableLiveData<MutableMap<Column, MutableList<Card>>>()
-    val dispBag = CompositeDisposable()
+    private val disposableBag = CompositeDisposable()
     val columnNameHasChanged = MutableLiveData<Boolean>()
     var hasInitialized = false
     lateinit var boardFromServer: BoardInfo
@@ -58,20 +50,8 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
     fun getBoardDetailsFromServer(id: String) {
 
         if (!hasInitialized) {
-            val getBoardDetailsRequest = retrofit.getBoardDetails(
-                id,
-                SINGLE_BOARD_VIEW_MODEL_CARDS,
-                SINGLE_BOARD_VIEW_MODEL_CARD_FIELDS,
-                true,
-                SINGLE_BOARD_VIEW_MODEL_LISTS,
-                SINGLE_BOARD_VIEW_MODEL_LISTS_FIELDS,
-                SINGLE_BOARD_VIEW_MODEL_MEMBERS_INVITED,
-                SINGLE_BOARD_VIEW_MODEL_MEMBER_FIELDS,
-                true,
-                SINGLE_BOARD_VIEW_MODEL_CARD_MEMBER_FIELDS,
-                TrelloConstants.CONSUMER_KEY,
-                token
-            ).observeOn(AndroidSchedulers.mainThread())
+            val getBoardDetailsRequest = repository.getBoardDetails(id)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ board ->
                     listOfColumns.value!!.addAll(board.lists)
                     listOfColumns.notifyObserver()
@@ -93,13 +73,13 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
                 }, {
                     message.value = R.string.single_board_view_model_get_board_details_failed
                 })
-            dispBag.add(getBoardDetailsRequest)
+            disposableBag.add(getBoardDetailsRequest)
             hasInitialized = true
         }
     }
 
     fun addCardOnServer(name: String, pos: String, idList: String) {
-        val addCardToServerRequest = retrofit.addCard(name, pos, idList, TrelloConstants.CONSUMER_KEY, token)
+        val addCardToServerRequest = repository.addCard(name, pos, idList)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ item ->
                 val column = mapOfColumns.value!!.keys.find { it.id == item.idList }
@@ -113,18 +93,12 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
             }, {
                 message.value = R.string.single_boadr_view_model_add_card_on_server_fail
             })
-        dispBag.add(addCardToServerRequest)
+        disposableBag.add(addCardToServerRequest)
     }
 
     fun addColumnToServer(name: String, board: Board) {
         val addColumnToServerRequest =
-            retrofit.addColumn(
-                name,
-                board.id,
-                TrelloConstants.SINGLE_BOARD_VIEW_MODEL_POS,
-                TrelloConstants.CONSUMER_KEY,
-                token
-            )
+            repository.addColumn(name, board)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ column ->
                     mapOfColumns.value!![column] = arrayListOf()
@@ -136,7 +110,7 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
                 }, {
                     message.value = R.string.single_board_view_model_add_column_to_server_failed
                 })
-        dispBag.add(addColumnToServerRequest)
+        disposableBag.add(addColumnToServerRequest)
     }
 
     private fun updateQueryMap() {
@@ -146,7 +120,7 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
 
     fun changeColumnPositionOnServer(oldColumnId: String, newColumnPos: Float, oldPosition: Int, newPosition: Int) {
         val changeColumnPositionOnServerRequest =
-            retrofit.moveColumn(oldColumnId, newColumnPos, TrelloConstants.CONSUMER_KEY, token)
+            repository.moveColumn(oldColumnId, newColumnPos)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     Collections.swap(listOfColumns.value, oldPosition, newPosition)
@@ -154,7 +128,7 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
                 }, {
                     message.value = R.string.single_board_view_model_change_column_position_failed
                 })
-        dispBag.add(changeColumnPositionOnServerRequest)
+        disposableBag.add(changeColumnPositionOnServerRequest)
     }
 
     private fun removeColumn(index: Int) {
@@ -168,14 +142,14 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
 
     fun addColumnToArchive(index: Int) {
         val columnId = listOfColumns.value!![index].id
-        val addColumnToArchiveRequest = retrofit.addColumnToArchive(columnId, true, TrelloConstants.CONSUMER_KEY, token)
+        val addColumnToArchiveRequest = repository.addColumnToArchive(columnId)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 removeColumn(index)
             }, {
                 message.value = R.string.single_board_view_model_failed_to_archive_column
             })
-        dispBag.add(addColumnToArchiveRequest)
+        disposableBag.add(addColumnToArchiveRequest)
     }
 
     fun changeItemPositionOnServer(
@@ -223,13 +197,10 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
                 }
             }
         }
-        //TODO refactor
-        val changeItemPositionOnServerRequest = retrofit.moveCard(
+        val changeItemPositionOnServerRequest = repository.moveCard(
             idCardForDrag,
             idColumnTo.id,
-            pos,
-            TrelloConstants.CONSUMER_KEY,
-            token
+            pos
         )
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -248,19 +219,19 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
             }, {
                 message.value = R.string.single_board_view_model_change_item_position_failed
             })
-        dispBag.add(changeItemPositionOnServerRequest)
+        disposableBag.add(changeItemPositionOnServerRequest)
     }
 
     fun changeColumnNameOnServer(newName: String, columnId: String) {
         columnNameHasChanged.value = false
-        val changeColumnNameRequest = retrofit.changeColumnName(columnId, newName, TrelloConstants.CONSUMER_KEY, token)
+        val changeColumnNameRequest = repository.changeColumnName(columnId, newName)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 columnNameHasChanged.value = true
             }, {
                 message.value = R.string.singe_board_view_model_change_column_name_failed
             })
-        dispBag.add(changeColumnNameRequest)
+        disposableBag.add(changeColumnNameRequest)
     }
 
     fun handleSearchQuery(query: String) {
@@ -283,5 +254,10 @@ class SingleBoardViewModel @Inject constructor(val retrofit: SingleBoardApi) : V
         mapOfColumns.value = map
         mapOfColumns.notifyObserver()
         mapOfColumns.value = map
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposableBag.clear()
     }
 }
