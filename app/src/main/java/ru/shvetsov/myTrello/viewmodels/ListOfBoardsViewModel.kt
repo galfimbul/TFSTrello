@@ -38,6 +38,9 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi, v
     lateinit var repository: ListOfBoardsFragmentRepository
 
     fun loadData() {
+        if (!_listOfBoards.value.isNullOrEmpty()) {
+            mapOfBoards.clear()
+        }
         val loadListOfBoardsRequest =
             repository.loadListOfBoards()
                 .observeOn(AndroidSchedulers.mainThread())

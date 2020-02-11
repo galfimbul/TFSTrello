@@ -55,9 +55,7 @@ class ListOfBoardsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val component = (requireActivity().application as AppTest).appComponent.getListOfBoardsSubcomponent()
-        component.inject(this)
-
+        initInject()
         activity?.run {
             inputNameViewModel = ViewModelProviders.of(this, inputNameFactory)[InputBoardNameViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
@@ -71,6 +69,15 @@ class ListOfBoardsFragment : Fragment() {
         })
     }
 
+    private fun initRefresh() {
+        list_of_boards_refresh.setOnRefreshListener { listOfBoardsViewModel.loadData() }
+    }
+
+    private fun initInject() {
+        val component = (requireActivity().application as AppTest).appComponent.getListOfBoardsSubcomponent()
+        component.inject(this)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -79,6 +86,7 @@ class ListOfBoardsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initRefresh()
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         toolbar.apply {
             title = "Доски"
@@ -97,6 +105,7 @@ class ListOfBoardsFragment : Fragment() {
             if (!hasInitialized)
                 hasInitialized = true
             progress_singleBoard.visibility = View.GONE
+            list_of_boards_refresh.isRefreshing = false
         })
 
         listOfBoardsViewModel.error.observe(this, Observer {
@@ -109,6 +118,7 @@ class ListOfBoardsFragment : Fragment() {
                 showError(R.string.list_of_boards_fragment_load_boards_error)
                 progress_singleBoard.visibility = View.GONE
             }
+            list_of_boards_refresh.isRefreshing = false
         })
 
         checkOrientation()
