@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -87,7 +88,7 @@ class CardInfoFragment : Fragment() {
     }
 
     private fun subscribeObservers() {
-        viewModel.getCardInfo().observe(this, Observer {
+        viewModel.card.observe(this, Observer {
             if (it != null) {
                 progress_card_info.visibility = View.GONE
                 card = it
@@ -97,7 +98,7 @@ class CardInfoFragment : Fragment() {
                 initMembers()
             }
         })
-        addMembersViewModel.getCardFromServer().observe(this, Observer { result ->
+        addMembersViewModel.cardFromServer.observe(this, Observer { result ->
             val cardMembersList: MutableList<User> = mutableListOf()
             boardInfo.members.forEach {
                 if (result.idMembers.contains(it.id)) {
@@ -119,6 +120,14 @@ class CardInfoFragment : Fragment() {
             }
         })
 
+        viewModel.error.observe(this, Observer { errorMessage ->
+            showError(errorMessage)
+        })
+
+    }
+
+    private fun showError(errorMessage: Int) {
+        Toast.makeText(requireContext(), getString(errorMessage), Toast.LENGTH_SHORT).show()
     }
 
     private fun initMembers() {
@@ -217,9 +226,6 @@ class CardInfoFragment : Fragment() {
         view.tv_attachment_info.text = text
 
         view.setOnClickListener {
-            /*val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(url)
-            startActivity(intent)*/
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(this.id, ShowAttachmentFragment.newInstance(url, true))

@@ -25,6 +25,7 @@ import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.adapters.ListOfBoardsAdapter
 import ru.shvetsov.myTrello.dataClasses.Board
 import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.extensions.showError
 import ru.shvetsov.myTrello.interfaces.FragmentListener
 import ru.shvetsov.myTrello.viewmodels.InputBoardNameViewModel
 import ru.shvetsov.myTrello.viewmodels.ListOfBoardsViewModel
@@ -61,14 +62,13 @@ class ListOfBoardsFragment : Fragment() {
             inputNameViewModel = ViewModelProviders.of(this, inputNameFactory)[InputBoardNameViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
 
+
         retainInstance = true
-        inputNameViewModel.getBoardFromServer().observe(this, Observer {
+        inputNameViewModel.boardFromServer.observe(this, Observer {
             listOfBoardsViewModel.addBoardToList(it)
             Log.d("M_MainActivity", "${it.boardName} has created")
             listener?.itemIsAddedInList(it)
-            inputNameViewModel.dispBag.clear()
         })
-        listOfBoardsViewModel.token = spref.getString("access_token", "")!!
     }
 
     override fun onCreateView(
@@ -85,7 +85,7 @@ class ListOfBoardsFragment : Fragment() {
             setTitleTextColor(Color.WHITE)
         }
 
-        listOfBoardsViewModel.getListOfBoards().observe(viewLifecycleOwner, Observer {
+        listOfBoardsViewModel.listOfBoards.observe(viewLifecycleOwner, Observer {
             if (it.isNullOrEmpty()) {
                 listOfBoardsViewModel.submitEmptyList()
             } else {
@@ -99,13 +99,15 @@ class ListOfBoardsFragment : Fragment() {
             progress_singleBoard.visibility = View.GONE
         })
 
-        listOfBoardsViewModel.getError().observe(this, Observer {
+        listOfBoardsViewModel.error.observe(this, Observer {
             if (it.contains("4")) {
                 spref.edit {
                     remove("access_token")
                     listener?.openAuthFragment()
                 }
-
+            } else {
+                showError(R.string.list_of_boards_fragment_load_boards_error)
+                progress_singleBoard.visibility = View.GONE
             }
         })
 

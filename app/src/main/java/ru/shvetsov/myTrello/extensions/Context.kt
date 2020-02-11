@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 /**
@@ -42,4 +43,16 @@ fun Context.dpToPx(dp: Int): Float {
 
 fun Context.spToPx(sp: Int): Float {
     return sp.toFloat() * this.resources.displayMetrics.scaledDensity
+}
+
+fun Fragment.showError(errorStringId: Int) {
+    activity?.showError(errorStringId)
+}
+
+fun Activity.showError(errorStringId: Int) {
+    applicationContext.showError(errorStringId)
+}
+
+fun Context.showError(errorStringId: Int) {
+    Toast.makeText(this, getString(errorStringId), Toast.LENGTH_SHORT).show()
 }

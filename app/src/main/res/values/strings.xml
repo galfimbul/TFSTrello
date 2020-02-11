@@ -100,6 +100,21 @@
     <string name="card_info_view_model_get_card_from_server_error">Произошла ошибка при загрузке. Проверьте соединение с
         интернетом и повторите попытку
     </string>
+    <string name="input_board_name_view_model_load_organization_failed">Невозможно получить список категорий. Проверьте
+        соединение с интернетом и повторите попытку
+    </string>
+    <string name="input_board_name_view_model_add_board_error">Невозможно добавить доску на сервер. Проверьте соединение
+        с интернетом и повторите попытку.
+    </string>
+    <string name="list_of_boards_fragment_load_boards_error">Произошла ошибка при работе с сервером. Проверьте
+        соединение с
+        интернетом и повторите попытку.
+    </string>
+    <string name="add_card_members_view_model_add_members_to_card_error">невозможно добавить участников к карточке.
+        Проверьте соединение с интернетом и повторите попытку.
+    </string>
+    <string name="list_of_boards_view_model_restore_item_on_server_error">Не удалось восстановить доску на сервере
+    </string>
     <string-array name="category">
         <item>Personal boards</item>
         <item>Work boards</item>

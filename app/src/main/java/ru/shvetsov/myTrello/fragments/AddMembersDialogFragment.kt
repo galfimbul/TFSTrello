@@ -21,6 +21,7 @@ import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.adapters.AddMembersAdapter
 import ru.shvetsov.myTrello.dataClasses.User
 import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.extensions.showError
 import ru.shvetsov.myTrello.viewmodels.AddCardMembersViewModel
 import ru.shvetsov.myTrello.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -123,10 +124,13 @@ class AddMembersDialogFragment : DialogFragment() {
     }
 
     private fun subscribeObservers() {
-        viewModel.getBoardMembersList().observe(this, Observer {
+        viewModel.boardMembersList.observe(this, Observer {
             boardMembersList = it
             adapter.setData(boardMembersList, cardMembersList)
             progressBar.visibility = View.GONE
+        })
+        viewModel.error.observe(this, Observer { errorMessage ->
+            showError(errorStringId = errorMessage)
         })
     }
 

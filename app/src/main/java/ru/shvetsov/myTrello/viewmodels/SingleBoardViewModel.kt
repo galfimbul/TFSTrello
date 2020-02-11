@@ -12,6 +12,7 @@ import ru.shvetsov.myTrello.dataClasses.BoardInfo
 import ru.shvetsov.myTrello.dataClasses.Column
 import ru.shvetsov.myTrello.dataClasses.card.Card
 import ru.shvetsov.myTrello.repositories.SingleBoardFragmentRepository
+import ru.shvetsov.myTrello.utils.SingleLiveEvent
 import ru.shvetsov.myTrello.utils.notifyObserver
 import java.util.*
 import javax.inject.Inject
@@ -22,30 +23,45 @@ import kotlin.collections.ArrayList
  */
 class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragmentRepository) : ViewModel() {
     lateinit var token: String
-    private val cardFromServer = MutableLiveData<Card>()
-    private val columnFromServer = MutableLiveData<Column>()
+    private val _cardFromServer = MutableLiveData<Card>()
+    val cardFromServer: LiveData<Card>
+        get() = _cardFromServer
+
+    private val _columnFromServer = MutableLiveData<Column>()
+    val columnFromServer: LiveData<Column>
+        get() = _columnFromServer
+
     var uniqId = 100L
-    private val message = MutableLiveData<Int>()
-    private val listOfColumns = MutableLiveData<ArrayList<Column>>()
-    private val mapOfColumns = MutableLiveData<MutableMap<Column, MutableList<Card>>>()
+
+    private val _message = SingleLiveEvent<Int>()
+    val message: SingleLiveEvent<Int>
+        get() = _message
+
+    private val _listOfColumns = MutableLiveData<ArrayList<Column>>()
+    val listOfColumns: LiveData<ArrayList<Column>>
+        get() = _listOfColumns
+
+    private val _mapOfColumns = MutableLiveData<MutableMap<Column, MutableList<Card>>>()
+    val mapOfColumns: LiveData<MutableMap<Column, MutableList<Card>>>
+        get() = _mapOfColumns
+
     private val disposableBag = CompositeDisposable()
-    val columnNameHasChanged = MutableLiveData<Boolean>()
+
+    private val _columnNameHasChanged = MutableLiveData<Boolean>()
+    val columnNameHasChanged: LiveData<Boolean>
+        get() = _columnNameHasChanged
+
     var hasInitialized = false
+
     lateinit var boardFromServer: BoardInfo
+
     var defaultQueryMap: MutableMap<Column, MutableList<Card>> = mutableMapOf()
 
 
     init {
-        listOfColumns.value = ArrayList()
-        mapOfColumns.value = mutableMapOf()
+        _listOfColumns.value = ArrayList()
+        _mapOfColumns.value = mutableMapOf()
     }
-
-    fun getCardFromServer(): LiveData<Card> = cardFromServer
-
-    fun getColumnFromServer(): LiveData<Column> = columnFromServer
-    fun getMessage(): LiveData<Int> = message
-    fun getListOfColumns(): LiveData<ArrayList<Column>> = listOfColumns
-    fun getMapOfColumns(): LiveData<MutableMap<Column, MutableList<Card>>> = mapOfColumns
 
     fun getBoardDetailsFromServer(id: String) {
 
@@ -53,8 +69,8 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
             val getBoardDetailsRequest = repository.getBoardDetails(id)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ board ->
-                    listOfColumns.value!!.addAll(board.lists)
-                    listOfColumns.notifyObserver()
+                    _listOfColumns.value!!.addAll(board.lists)
+                    _listOfColumns.notifyObserver()
                     val map = mutableMapOf<Column, MutableList<Card>>()
                     board.lists.forEach { column ->
                         map[column] = arrayListOf()
@@ -69,9 +85,9 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
                     }
                     boardFromServer = board
                     defaultQueryMap.putAll(map)
-                    mapOfColumns.value = map
+                    _mapOfColumns.value = map
                 }, {
-                    message.value = R.string.single_board_view_model_get_board_details_failed
+                    _message.value = R.string.single_board_view_model_get_board_details_failed
                 })
             disposableBag.add(getBoardDetailsRequest)
             hasInitialized = true
@@ -82,16 +98,16 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
         val addCardToServerRequest = repository.addCard(name, pos, idList)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ item ->
-                val column = mapOfColumns.value!!.keys.find { it.id == item.idList }
+                val column = _mapOfColumns.value!!.keys.find { it.id == item.idList }
                 item!!.uniqIdForAdapter = uniqId
                 uniqId++
                 item.color = Color.GREEN
-                message.value = R.string.single_board_view_model_card_add_success
-                mapOfColumns.value!![column]!!.add(0, item)
-                cardFromServer.value = item
+                _message.value = R.string.single_board_view_model_card_add_success
+                _mapOfColumns.value!![column]!!.add(0, item)
+                _cardFromServer.value = item
                 updateQueryMap()
             }, {
-                message.value = R.string.single_boadr_view_model_add_card_on_server_fail
+                _message.value = R.string.single_boadr_view_model_add_card_on_server_fail
             })
         disposableBag.add(addCardToServerRequest)
     }
@@ -101,21 +117,21 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
             repository.addColumn(name, board)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ column ->
-                    mapOfColumns.value!![column] = arrayListOf()
-                    mapOfColumns.notifyObserver()
-                    listOfColumns.value!!.add(column)
-                    listOfColumns.notifyObserver()
-                    columnFromServer.value = column
+                    _mapOfColumns.value!![column] = arrayListOf()
+                    _mapOfColumns.notifyObserver()
+                    _listOfColumns.value!!.add(column)
+                    _listOfColumns.notifyObserver()
+                    _columnFromServer.value = column
                     updateQueryMap()
                 }, {
-                    message.value = R.string.single_board_view_model_add_column_to_server_failed
+                    _message.value = R.string.single_board_view_model_add_column_to_server_failed
                 })
         disposableBag.add(addColumnToServerRequest)
     }
 
     private fun updateQueryMap() {
         defaultQueryMap.clear()
-        defaultQueryMap.putAll(mapOfColumns.value!!)
+        defaultQueryMap.putAll(_mapOfColumns.value!!)
     }
 
     fun changeColumnPositionOnServer(oldColumnId: String, newColumnPos: Float, oldPosition: Int, newPosition: Int) {
@@ -123,31 +139,31 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
             repository.moveColumn(oldColumnId, newColumnPos)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    Collections.swap(listOfColumns.value, oldPosition, newPosition)
-                    message.value = R.string.single_board_view_model_change_column_position_success
+                    Collections.swap(_listOfColumns.value, oldPosition, newPosition)
+                    _message.value = R.string.single_board_view_model_change_column_position_success
                 }, {
-                    message.value = R.string.single_board_view_model_change_column_position_failed
+                    _message.value = R.string.single_board_view_model_change_column_position_failed
                 })
         disposableBag.add(changeColumnPositionOnServerRequest)
     }
 
     private fun removeColumn(index: Int) {
-        mapOfColumns.value!!.remove(listOfColumns.value!![index])
-        mapOfColumns.notifyObserver()
-        listOfColumns.value!!.removeAt(index)
-        listOfColumns.notifyObserver()
-        message.value = R.string.single_board_view_model_remove_column_success
+        _mapOfColumns.value!!.remove(_listOfColumns.value!![index])
+        _mapOfColumns.notifyObserver()
+        _listOfColumns.value!!.removeAt(index)
+        _listOfColumns.notifyObserver()
+        _message.value = R.string.single_board_view_model_remove_column_success
         updateQueryMap()
     }
 
     fun addColumnToArchive(index: Int) {
-        val columnId = listOfColumns.value!![index].id
+        val columnId = _listOfColumns.value!![index].id
         val addColumnToArchiveRequest = repository.addColumnToArchive(columnId)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 removeColumn(index)
             }, {
-                message.value = R.string.single_board_view_model_failed_to_archive_column
+                _message.value = R.string.single_board_view_model_failed_to_archive_column
             })
         disposableBag.add(addColumnToArchiveRequest)
     }
@@ -160,9 +176,9 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
         toRow: Int
     ) {
         val pos: Float
-        val idColumnTo = listOfColumns.value!![toColumn]
-        val idColumnFrom = listOfColumns.value!![fromColumn]
-        val map = mapOfColumns.value
+        val idColumnTo = _listOfColumns.value!![toColumn]
+        val idColumnFrom = _listOfColumns.value!![fromColumn]
+        val map = _mapOfColumns.value
         if (fromColumn == toColumn) {
             when (toRow) {
                 0 -> {
@@ -205,31 +221,31 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 if (idColumnFrom == idColumnTo) {
-                    Collections.swap(mapOfColumns.value!![idColumnFrom], fromRow, toRow)
-                    mapOfColumns.value!![idColumnFrom]!![toRow] = it
-                    mapOfColumns.notifyObserver()
+                    Collections.swap(_mapOfColumns.value!![idColumnFrom], fromRow, toRow)
+                    _mapOfColumns.value!![idColumnFrom]!![toRow] = it
+                    _mapOfColumns.notifyObserver()
 
                 } else {
-                    mapOfColumns.value!![idColumnFrom]!!.removeAt(fromRow)
-                    mapOfColumns.value!![idColumnTo]!!.add(toRow, it)
-                    mapOfColumns.notifyObserver()
+                    _mapOfColumns.value!![idColumnFrom]!!.removeAt(fromRow)
+                    _mapOfColumns.value!![idColumnTo]!!.add(toRow, it)
+                    _mapOfColumns.notifyObserver()
                 }
                 updateQueryMap()
 
             }, {
-                message.value = R.string.single_board_view_model_change_item_position_failed
+                _message.value = R.string.single_board_view_model_change_item_position_failed
             })
         disposableBag.add(changeItemPositionOnServerRequest)
     }
 
     fun changeColumnNameOnServer(newName: String, columnId: String) {
-        columnNameHasChanged.value = false
+        _columnNameHasChanged.value = false
         val changeColumnNameRequest = repository.changeColumnName(columnId, newName)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                columnNameHasChanged.value = true
+                _columnNameHasChanged.value = true
             }, {
-                message.value = R.string.singe_board_view_model_change_column_name_failed
+                _message.value = R.string.singe_board_view_model_change_column_name_failed
             })
         disposableBag.add(changeColumnNameRequest)
     }
@@ -238,8 +254,8 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
         val map = mutableMapOf<Column, MutableList<Card>>()
         map.putAll(defaultQueryMap)
         if (query.isNullOrBlank()) {
-            mapOfColumns.value = defaultQueryMap
-            mapOfColumns.notifyObserver()
+            _mapOfColumns.value = defaultQueryMap
+            _mapOfColumns.notifyObserver()
             return
         }
         val iterator = map.iterator()
@@ -251,9 +267,9 @@ class SingleBoardViewModel @Inject constructor(val repository: SingleBoardFragme
                 iterator.remove()
             }
         }
-        mapOfColumns.value = map
-        mapOfColumns.notifyObserver()
-        mapOfColumns.value = map
+        _mapOfColumns.value = map
+        _mapOfColumns.notifyObserver()
+        _mapOfColumns.value = map
     }
 
     override fun onCleared() {

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.dataClasses.Board
 import ru.shvetsov.myTrello.dataClasses.Organization
 import ru.shvetsov.myTrello.dataClasses.TrelloConstants.CONSUMER_KEY
@@ -15,24 +16,29 @@ import ru.shvetsov.myTrello.dataClasses.TrelloConstants.INPUT_BOARD_NAME_VIEW_MO
 import ru.shvetsov.myTrello.dataClasses.TrelloConstants.PERSONAL_BOARDS
 import ru.shvetsov.myTrello.network.InputBoardNameApi
 import ru.shvetsov.myTrello.utils.Converter
+import ru.shvetsov.myTrello.utils.SingleLiveEvent
 import javax.inject.Inject
 
 /**
  * Created by Alexander Shvetsov on 03.11.2019
  */
-class InputBoardNameViewModel @Inject constructor(val retrofit: InputBoardNameApi) : ViewModel() {
-    private val categoryList = MutableLiveData<MutableList<String>>()
-    private val teamList = MutableLiveData<List<Organization>>()
-    private lateinit var apiToken: String
-    private var boardFromServer = MutableLiveData<Board>()
-    val dispBag = CompositeDisposable()
+class InputBoardNameViewModel @Inject constructor(val retrofit: InputBoardNameApi, val apiToken: String) : ViewModel() {
+    private val _categoryList = MutableLiveData<MutableList<String>>()
+    val categoryList: LiveData<MutableList<String>>
+        get() = _categoryList
+    private val _teamList = MutableLiveData<List<Organization>>()
+    val teamList: LiveData<List<Organization>>
+        get() = _teamList
+    private var _boardFromServer = MutableLiveData<Board>()
+    val boardFromServer: LiveData<Board>
+        get() = _boardFromServer
+    private val _error = SingleLiveEvent<Int>()
+    val error: SingleLiveEvent<Int>
+        get() = _error
+    private val disposablesBag = CompositeDisposable()
 
-    fun getCategoryList(): LiveData<MutableList<String>> = categoryList
-    fun getTeamList(): LiveData<List<Organization>> = teamList
-    fun getBoardFromServer(): LiveData<Board> = boardFromServer
 
-    fun loadData(token: String) {
-        apiToken = token
+    fun loadData() {
         val loadDataRequest =
             retrofit.getListOfTeams(
                 INPUT_BOARD_NAME_VIEW_MODEL_FILTER,
@@ -47,18 +53,18 @@ class InputBoardNameViewModel @Inject constructor(val retrofit: InputBoardNameAp
                     it.forEach { organization ->
                         listOfNames.add(organization.displayName)
                     }
-                    categoryList.value = listOfNames
-                    teamList.value = it
+                    _categoryList.value = listOfNames
+                    _teamList.value = it
                 }, {
-                    //Toast.makeText(activity, "FAIL TO MAKE REQUEST", Toast.LENGTH_LONG).show()
+                    _error.value = R.string.input_board_name_view_model_load_organization_failed
                 })
-        dispBag.add(loadDataRequest)
+        disposablesBag.add(loadDataRequest)
     }
 
     fun addBoardToServer(boardName: String, team: String) {
         val organizationName: String
         organizationName = if (team == PERSONAL_BOARDS) "" else {
-            val organization = teamList.value!!.filter { it.displayName == team }
+            val organization = _teamList.value!!.filter { it.displayName == team }
             organization[0].name
         }
         Log.d("M_InputBoardNameViewM", "$boardName start adding")
@@ -71,11 +77,16 @@ class InputBoardNameViewModel @Inject constructor(val retrofit: InputBoardNameAp
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ board ->
                     board.category = team
-                    boardFromServer.value = board
+                    _boardFromServer.value = board
 
                 }, {
-                    Log.d("M_InputBoardNameView", "попал в ошибку")
+                    _error.value = R.string.input_board_name_view_model_add_board_error
                 })
-        dispBag.add(addBoardRequest)
+        disposablesBag.add(addBoardRequest)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposablesBag.clear()
     }
 }

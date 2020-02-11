@@ -21,10 +21,11 @@ import javax.inject.Inject
  */
 class CardChangesViewModel @Inject constructor(val retrofit: CardChangesApi) : ViewModel() {
     lateinit var apiToken: String
-    private val actionsList = MutableLiveData<List<CardChangesUiModel>>()
-    val dispBag = CompositeDisposable()
+    private val _actionsList = MutableLiveData<List<CardChangesUiModel>>()
+    val actionsList: LiveData<List<CardChangesUiModel>>
+        get() = _actionsList
+    private val disposablesBag = CompositeDisposable()
 
-    fun getActionsList(): LiveData<List<CardChangesUiModel>> = actionsList
 
     fun loadActions(card: Card) {
         val filter = CARD_CHANGES_VIEW_MODEL_BOARD_FILTERS
@@ -32,11 +33,11 @@ class CardChangesViewModel @Inject constructor(val retrofit: CardChangesApi) : V
         val result = retrofit.getListOfActions(card.id, filter, true, fields, CONSUMER_KEY, apiToken)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                actionsList.value = mapData(it)
+                _actionsList.value = mapData(it)
             }, {
-                actionsList.value = emptyList()
+                _actionsList.value = emptyList()
             })
-        dispBag.add(result)
+        disposablesBag.add(result)
     }
 
     private fun mapData(listFromApi: List<CardAction>): List<CardChangesUiModel> {
@@ -136,5 +137,10 @@ class CardChangesViewModel @Inject constructor(val retrofit: CardChangesApi) : V
             }
             else -> error("Wrong action type")
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposablesBag.clear()
     }
 }

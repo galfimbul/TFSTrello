@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -17,6 +16,7 @@ import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.adapters.CardChangesAdapter
 import ru.shvetsov.myTrello.dataClasses.card.Card
 import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.extensions.showError
 import ru.shvetsov.myTrello.viewmodels.CardChangesViewModel
 import ru.shvetsov.myTrello.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -65,24 +65,19 @@ class CardChangesFragment : Fragment() {
     }
 
     private fun subscribeObservers() {
-        viewModel.getActionsList().observe(this, Observer {
+        viewModel.actionsList.observe(this, Observer {
             progress_cardChanges.visibility = View.GONE
             if (it.isEmpty()) {
-                Toast.makeText(
+                /*Toast.makeText(
                     requireContext(),
                     getString(R.string.card_changes_fragment_rv_list_empty_toast_text),
                     Toast.LENGTH_SHORT
-                ).show()
+                ).show()*/
+                showError(R.string.card_changes_fragment_rv_list_empty_toast_text)
             } else {
                 adapter.setData(it)
             }
         })
-    }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.dispBag.clear()
     }
 
     companion object {

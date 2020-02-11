@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.scribejava.core.model.OAuth1RequestToken
 import com.github.scribejava.core.oauth.OAuth10aService
@@ -23,6 +22,7 @@ import kotlinx.android.synthetic.main.auth_fragment.*
 import ru.shvetsov.myTrello.R
 import ru.shvetsov.myTrello.dataClasses.TrelloConstants
 import ru.shvetsov.myTrello.di.dagger.AppTest
+import ru.shvetsov.myTrello.extensions.showError
 import ru.shvetsov.myTrello.interfaces.FragmentListener
 import ru.shvetsov.myTrello.network.ServiceClient
 import javax.inject.Inject
@@ -34,10 +34,10 @@ import javax.inject.Named
 class AuthFragment : Fragment() {
     lateinit var accessTokenListener: FragmentListener
     lateinit var requestToken: OAuth1RequestToken
-    val service: OAuth10aService by lazy {
+    private val service: OAuth10aService by lazy {
         return@lazy ServiceClient.instance
     }
-    val dispBag = CompositeDisposable()
+    private val disposablesBag = CompositeDisposable()
 
     @Inject
     lateinit var spref: SharedPreferences
@@ -100,7 +100,7 @@ class AuthFragment : Fragment() {
                 }, {
                     Log.d("M_AuthFragment", it.localizedMessage)
                 })
-        dispBag.add(getAccessToken)
+        disposablesBag.add(getAccessToken)
 
     }
 
@@ -116,18 +116,15 @@ class AuthFragment : Fragment() {
                 wv_test.loadUrl(url)
                 requestToken = it
             }, {
-                Toast.makeText(
-                    activity,
-                    getString(R.string.auth_fragment_get_request_token_failed),
-                    Toast.LENGTH_SHORT
-                ).show()
+
+                showError(R.string.auth_fragment_get_request_token_failed)
             })
-        dispBag.add(getRequestToken)
+        disposablesBag.add(getRequestToken)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        dispBag.clear()
+        disposablesBag.clear()
     }
 
     override fun onAttach(context: Context) {

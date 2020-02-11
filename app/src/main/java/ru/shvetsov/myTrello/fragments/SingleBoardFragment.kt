@@ -159,11 +159,11 @@ class SingleBoardFragment : Fragment() {
         //получаем данные о доске с сервера
         singleBoardViewModel.getBoardDetailsFromServer(board.id)
 
-        singleBoardViewModel.getListOfColumns().observe(this, Observer {
+        singleBoardViewModel.listOfColumns.observe(this, Observer {
             listOfColumns = it
         })
 
-        singleBoardViewModel.getMapOfColumns().observe(this, Observer {
+        singleBoardViewModel.mapOfColumns.observe(this, Observer {
             if (it.keys.size > 0) {
                 mapOfColumns = it
                 // ставим значение uniqId с которого начнем считать
@@ -177,7 +177,7 @@ class SingleBoardFragment : Fragment() {
         })
 
         //получаем карточку с сервера при успешном добавлении и отображаем ее
-        singleBoardViewModel.getCardFromServer().observe(this, Observer { card ->
+        singleBoardViewModel.cardFromServer.observe(this, Observer { card ->
             val columnIndex = listOfColumns.indexOfFirst { column ->
                 column.id == card.idList
             }
@@ -188,7 +188,7 @@ class SingleBoardFragment : Fragment() {
         })
 
         // то же самое для колонки
-        singleBoardViewModel.getColumnFromServer().observe(this, Observer {
+        singleBoardViewModel.columnFromServer.observe(this, Observer {
             if (mBoardView.columnCount != listOfColumns.size) {
                 addColumnToBoard(it)
                 lastAddedColumn = it
@@ -196,7 +196,7 @@ class SingleBoardFragment : Fragment() {
         })
 
         // получаем сообщения из запросов для уведомления пользователя
-        singleBoardViewModel.getMessage().observe(this, Observer {
+        singleBoardViewModel.message.observe(this, Observer {
             Toast.makeText(activity, getString(it), Toast.LENGTH_SHORT).show()
         })
 

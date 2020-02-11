@@ -2,7 +2,6 @@ package ru.shvetsov.myTrello.fragments
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +9,7 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -43,12 +43,13 @@ class InputBoardNameFragment : DialogFragment() {
                 .get(InputBoardNameViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
 
-        val spref = activity!!.getSharedPreferences("MyApp", Context.MODE_PRIVATE)
-        val token = spref.getString("access_token", "")
         category = ArrayList()
         arrayAdapter = ArrayAdapter(activity, android.R.layout.simple_list_item_single_choice, category)
         setListToCheckBox()
-        viewModel.loadData(token!!)
+        viewModel.loadData()
+        viewModel.error.observe(this, Observer { errorMessage ->
+            Toast.makeText(activity, getString(errorMessage), Toast.LENGTH_LONG).show()
+        })
         retainInstance = true
     }
 
@@ -87,12 +88,12 @@ class InputBoardNameFragment : DialogFragment() {
     }
 
     private fun setListToCheckBox() {
-        viewModel.getCategoryList().observe(this, Observer {
+        viewModel.categoryList.observe(this, Observer {
             arrayAdapter.clear()
             it.add(0, getString(R.string.input_baord_name_fragment_personal_boards_category))
             arrayAdapter.addAll(it)
         })
-        viewModel.getTeamList().observe(this, Observer {
+        viewModel.teamList.observe(this, Observer {
             teamsList = it
         })
 

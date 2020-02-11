@@ -15,6 +15,7 @@ import ru.shvetsov.myTrello.dataClasses.TrelloConstants.LIST_OF_BOARDS_VIEW_MODE
 import ru.shvetsov.myTrello.network.ListOfBoardsApi
 import ru.shvetsov.myTrello.repositories.ListOfBoardsFragmentRepository
 import ru.shvetsov.myTrello.utils.Converter
+import ru.shvetsov.myTrello.utils.SingleLiveEvent
 import java.util.*
 import javax.inject.Inject
 
@@ -22,19 +23,19 @@ import javax.inject.Inject
  * Created by Alexander Shvetsov on 03.11.2019
  */
 
-class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) : ViewModel() {
+class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi, val token: String) : ViewModel() {
     private val mapOfBoards: MutableMap<String, MutableList<Board>> = mutableMapOf()
-    private val listOfBoards = MutableLiveData<List<Board>>()
+    private val _listOfBoards = MutableLiveData<List<Board>>()
+    val listOfBoards: LiveData<List<Board>>
+        get() = _listOfBoards
     private var itemId = 100 // Id айтемов
-    lateinit var token: String
-    private val error = MutableLiveData<String>()
+    private val _error = SingleLiveEvent<String>()
+    val error: SingleLiveEvent<String>
+        get() = _error
     var removeBoardIndex: Int = 0
     val dispBag = CompositeDisposable()
     @Inject
     lateinit var repository: ListOfBoardsFragmentRepository
-
-    fun getListOfBoards(): LiveData<List<Board>> = listOfBoards
-    fun getError(): LiveData<String> = error
 
     fun loadData() {
         val loadListOfBoardsRequest =
@@ -46,10 +47,9 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
                             .forEach { board ->
                                 setData(board)
                             }
-                        listOfBoards.value = mapOfBoards.values.flatten()
+                        _listOfBoards.value = mapOfBoards.values.flatten()
                     }, {
-                        //TODO реализовать
-                        error.value = it.localizedMessage
+                        _error.value = it.localizedMessage
 
                     }
                 )
@@ -88,7 +88,7 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
         if (mapOfBoards[board.category]!!.size == 1) {
             mapOfBoards[board.category]!!.clear()
         }
-        listOfBoards.value = mapOfBoards.values.flatten()
+        _listOfBoards.value = mapOfBoards.values.flatten()
     }
 
     private fun restoreItem(board: Board, index: Int) {
@@ -103,7 +103,7 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
         } else {
             mapOfBoards[board.category]!!.add(index, board)
         }
-        listOfBoards.value = mapOfBoards.values.flatten()
+        _listOfBoards.value = mapOfBoards.values.flatten()
     }
 
     fun restoreItemOnServer(board: Board, team: String, index: Int) {
@@ -116,7 +116,7 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
                 .subscribe({
                     restoreItem(board, index)
                 }, {
-                    //TODO добавить обработку через liveData
+                    _error.value = it.localizedMessage
                 })
         dispBag.add(restoreBoardRequest)
     }
@@ -126,9 +126,9 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
             repository.deleteBoard(id)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    //TODO доска удалена с сервера
+
                 }, {
-                    //TODO доска неудалена с сервера
+                    _error.value = it.localizedMessage
                 })
         dispBag.add(deleteBoardRequest)
     }
@@ -165,11 +165,11 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
                 mapOfBoards[list[toPosition + 1].category]!!.add(1, fromItem)
             }
         }
-        listOfBoards.value = mapOfBoards.values.flatten()
+        _listOfBoards.value = mapOfBoards.values.flatten()
     }
 
     fun submitEmptyList() {
-        listOfBoards.value = listOf(
+        _listOfBoards.value = listOf(
             Board(
                 id = LIST_OF_BOARDS_VIEW_MODEL_EMPTY_LIST_ID,
                 boardName = LIST_OF_BOARDS_VIEW_MODEL_EMPTY_LIST_BOARD_NAME,
@@ -183,6 +183,6 @@ class ListOfBoardsViewModel @Inject constructor(val retrofit: ListOfBoardsApi) :
 
     fun addBoardToList(board: Board) {
         setData(board)
-        listOfBoards.value = mapOfBoards.values.flatten()
+        _listOfBoards.value = mapOfBoards.values.flatten()
     }
 }
